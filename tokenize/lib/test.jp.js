@@ -5,7 +5,11 @@ var dst = {
 		if ( ret.c){
 			ret.c = dictionary.findOne({_id:ret.c});
 		}
-		print(JSON.stringify(ret));
+		if ( _VERBOSE ) {
+			print(JSON.stringify(ret));
+		}else{
+			print(ret.i + ' : ' + ret.w);
+		}
 	},
 	findAndModify: function(a){
 	},

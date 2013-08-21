@@ -17,11 +17,13 @@ Options :
     -h, --help                : This message
     -d, --dictionary  ns      : Dictionary collection ns
     -i, --input       string  : Input sentense directly
+    -V, --verbose             : With document
 USAGE
   exit $1
 }
 
 DIC="var _DIC='analysis.dictionary';"
+VERBOSE="var _VERBOSE=false;"
 
 OPTIONS=`getopt -o hd:i: --long help,dictionary:,input:, -- "$@"`
 if [ $? != 0 ] ; then
@@ -34,10 +36,11 @@ while true; do
 				-h|--help)       usage 0 ;;
 				-d|--dictionary) DIC="var _DIC='${OPTARG}';";shift;;
 				-i|--input)      SENTENSE="var _SENTENSE='`echo \"${OPTARG}\"|tr "\n" " "`';";shift;;
+				-V|--verbose)         VERBOSE="var _VERBOSE=true;";;
 				--) shift;break;;
 				*) echo "Internal error! " >&2; exit 1 ;;
     esac
 		shift
 done
 
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${SENTENSE}"  ${CURDIR}/../monmo/lib/utils.js  ${CURDIR}/lib/dictionary.js  ${CURDIR}/lib/morpho.js  ${CURDIR}/lib/jptokenizer.js  ${CURDIR}/lib/test.jp.js | grep -v '^loading file:'
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${SENTENSE}${VERBOSE}"  ${CURDIR}/../monmo/lib/utils.js  ${CURDIR}/lib/dictionary.js  ${CURDIR}/lib/morpho.js  ${CURDIR}/lib/jptokenizer.js  ${CURDIR}/lib/test.jp.js | grep -v '^loading file:'
