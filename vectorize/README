@@ -1,0 +1,119 @@
+* About VECTORIZE
+
+　　形態素解析結果からドキュメントのTF/IDF（特徴を表すベクトル）を算出します。
+
+　　また、その途中経過を利用する事で、フルテキストサーチ（ANDやORなど）が可能になります。
+
+
+* 用語
+
+** TF (Term-Frequency)：　単語頻出度
+
+　　TF = 該当単語がドキュメント内に何回現れたか
+　　一般的に頻出単語程、そのドキュメント内で重要な単語と見做します。
+
+** DF (Document-Frequency)：　文書頻出度
+
+　　DF = 該当単語が幾つのドキュメントに現れたか？
+
+** IDF (Inverse DF)：　逆文書頻出度
+
+　　IDF = log( 総ドキュメント数 / DF )
+
+　　多数のドキュメントに跨って出現する単語は、ドキュメントの特徴を表しているとは言えない。
+
+　　代名詞（私、彼）、助詞／助動詞（は、です）などは、ほぼ全ドキュメントに出現し、
+　　IDFが極小となるので評価から除外できる。
+
+** TF-IDF
+
+　　TF-IDF = TF x IDF
+
+　　これを全単語に対して評価したもの（高次元ベクトル）を、ドキュメントの特徴と捉えている。
+
+
+* 処理順
+　　１．TF    : <= Token
+　　２．DF    : <= TF
+　　３．IDF   : <= DF
+　　４．TFIDF : <= TF + IDF
+
+* 高速化
+
+　　TF-IDFはまともに全ての単語を評価するとベクトルの次元数が膨大になる為、ある程度間引きする必要がある。
+　　
+　　今回はIDFの段階で、閾値（threshold）と制限値（limit）でフィルタリングしている。
+　　フィルタリングされた単語は、IDFコレクション中（"value"=0）とされ、TF-IDFでも0と判定され、除外される。
+
+　　また、DF=1 （１つのドキュメントにだけ含まれている単語）はドキュメントの特徴を捉えているものの、
+　　他ドキュメントと比較する術が無いのでやはり除外する。
+
+
+* ドキュメント検索
+
+　　TFを算出した段階で、ドキュメント検索が可能になる。（クイックスタート参照）
+
+
+* クイックスタート
+
+　　超簡略化手順：
+
+　　１．ベクトル算出
+
+　　　./bin/vectorize.sh -s test.token.sampledoc -j 4
+
+　　２．文書検索
+
+　　　./bin/fulltext_search.sh -s test.vector.tf.token.sampledoc -w 'はさみや糊など' -V -L 1000
+　　
+
+* 処理手順
+　　
+　　１．TF
+　　　./bin/tf.sh    -s test.token.sampledoc            -o test.vector.tf.token.sampledoc    -C
+　　　./bin/tf.sh    -s test.token.sampledoc            -o test.vector.tf.token.sampledoc    -j 4
+　　２．DF
+　　　./bin/df.sh    -s test.vector.tf.token.sampledoc  -o test.vector.df.token.sampledoc    -C
+　　　./bin/df.sh    -s test.vector.tf.token.sampledoc  -o test.vector.df.token.sampledoc    -j 4
+　　３．IDF
+　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
+　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+　　４．TF-IDF
+　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -C
+　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -j 4
+
+
+　　IDFチューニング：
+
+　　１．DFとIDFを確認する。
+
+　　　./bin/view_df.sh -s test.vector.df.token.sampledoc
+
+　　　./bin/view_df.sh -s test.vector.idf.token.sampledoc
+
+
+　　２．上を確認しながら、limit,threshold,verb-onlyの値を調整する。
+
+　　　limit:     （DF / 総ドキュメント数）の最大値
+　　　threshold: DFの最小値
+　　　verb-only: 名詞だけ抽出
+
+　　　切り捨て過ぎの場合はlimit値を下げる：
+　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
+　　　./bin/idf.sh --limit 0.3   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+
+　　　もっと切り捨てたい場合はlimit値を上げる：
+　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
+　　　./bin/idf.sh --limit 0.5   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+
+　　　名詞だけを評価する：（大抵の場合、条件を緩くした方が良い）
+　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
+　　　./bin/idf.sh --limit 0.3 --verb-only -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+
+
+　　３．結果が良くなるまで繰り返す
+
+
+　　４．TF-IDFを再産出
+　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -C
+　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -j 4

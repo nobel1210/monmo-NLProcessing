@@ -1,0 +1,4 @@
+
+mongoimport -d test -c samplevector --file ../sample/samplevectors.json
+
+./bin/canopy.sh -s test.samplevector -v loc -2 20 -1 22
