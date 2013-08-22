@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
-source $CURDIR/../monmo/mongo.env
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE
@@ -47,6 +47,6 @@ if [ "$FORWARD" = "1" ];then
 		QUERY="var _QUERY={w:/^$WORD/};"
 fi
 
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${EVAL}${DIC}${QUERY}${VERBOSE}" ${CURDIR}/../monmo/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/moddic.js | grep -v '^loading file:'
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${EVAL}${DIC}${QUERY}${VERBOSE}" ${MONMO_ROOT}/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/moddic.js | grep -v '^loading file:'
 
 

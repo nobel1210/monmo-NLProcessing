@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
-source $CURDIR/../mongo.env
+source $CURDIR/../monmo.env
 
 function fetch {
 		URL=$1

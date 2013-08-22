@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
-source $CURDIR/../monmo/mongo.env
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE
@@ -25,7 +25,7 @@ USAGE
 DIC="var _DIC='analysis.dictionary';"
 VERBOSE="var _VERBOSE=false;"
 
-OPTIONS=`getopt -o hd:i: --long help,dictionary:,input:, -- "$@"`
+OPTIONS=`getopt -o hd:i:V --long help,dictionary:,input:,verbose, -- "$@"`
 if [ $? != 0 ] ; then
   exit 1
 fi
@@ -43,4 +43,4 @@ while true; do
 		shift
 done
 
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${SENTENSE}${VERBOSE}"  ${CURDIR}/../monmo/lib/utils.js  ${CURDIR}/lib/dictionary.js  ${CURDIR}/lib/morpho.js  ${CURDIR}/lib/jptokenizer.js  ${CURDIR}/lib/test.jp.js | grep -v '^loading file:'
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${SENTENSE}${VERBOSE}"  ${MONMO_ROOT}/lib/utils.js  ${CURDIR}/lib/dictionary.js  ${CURDIR}/lib/morpho.js  ${CURDIR}/lib/jptokenizer.js  ${CURDIR}/lib/test.jp.js | grep -v '^loading file:'

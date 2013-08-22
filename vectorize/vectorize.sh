@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE

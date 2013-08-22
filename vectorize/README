@@ -56,40 +56,38 @@
 
 * クイックスタート
 
-　　超簡略化手順：
+　　１．形態素解析まで行う
 
-　　１．ベクトル算出
+　　　https://github.com/monmo/monmo-NLProcessing/blob/master/tokenize/README
 
-　　　./bin/vectorize.sh -s test.token.sampledoc -j 4
+　　２．ベクトル算出
 
-　　２．文書検索
+　　　./vectorize.sh -s test.token.sampledoc
 
-　　　./bin/fulltext_search.sh -s test.vector.tf.token.sampledoc -w 'はさみや糊など' -V -L 1000
+　　３．文書検索
+
+　　　./fulltext_search.sh -s test.vector.tf.token.sampledoc -w 'はさみや糊など' -V -L 1000
 　　
 
 * 処理手順
 　　
 　　１．TF
-　　　./bin/tf.sh    -s test.token.sampledoc            -o test.vector.tf.token.sampledoc    -C
-　　　./bin/tf.sh    -s test.token.sampledoc            -o test.vector.tf.token.sampledoc    -j 4
+　　　./tf.sh    -s test.token.sampledoc            -o test.vector.tf.token.sampledoc
 　　２．DF
-　　　./bin/df.sh    -s test.vector.tf.token.sampledoc  -o test.vector.df.token.sampledoc    -C
-　　　./bin/df.sh    -s test.vector.tf.token.sampledoc  -o test.vector.df.token.sampledoc    -j 4
+　　　./df.sh    -s test.vector.tf.token.sampledoc  -o test.vector.df.token.sampledoc
 　　３．IDF
-　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
-　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+　　　./idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc
 　　４．TF-IDF
-　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -C
-　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -j 4
+　　　./tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc
 
 
 　　IDFチューニング：
 
 　　１．DFとIDFを確認する。
 
-　　　./bin/view_df.sh -s test.vector.df.token.sampledoc
+　　　./view_df.sh -s test.vector.df.token.sampledoc
 
-　　　./bin/view_df.sh -s test.vector.idf.token.sampledoc
+　　　./view_df.sh -s test.vector.idf.token.sampledoc
 
 
 　　２．上を確認しながら、limit,threshold,verb-onlyの値を調整する。
@@ -99,21 +97,18 @@
 　　　verb-only: 名詞だけ抽出
 
 　　　切り捨て過ぎの場合はlimit値を下げる：
-　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
-　　　./bin/idf.sh --limit 0.3   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+　　　./idf.sh --limit 0.3   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc
 
 　　　もっと切り捨てたい場合はlimit値を上げる：
-　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
-　　　./bin/idf.sh --limit 0.5   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+　　　./idf.sh --limit 0.5   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc
 
 　　　名詞だけを評価する：（大抵の場合、条件を緩くした方が良い）
-　　　./bin/idf.sh   -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -C
-　　　./bin/idf.sh --limit 0.3 --verb-only -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc   -j 4
+　　　./idf.sh --limit 0.3 --verb-only -s test.vector.df.token.sampledoc  -o test.vector.idf.token.sampledoc
 
 
 　　３．結果が良くなるまで繰り返す
 
 
 　　４．TF-IDFを再産出
-　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -C
-　　　./bin/tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc -j 4
+　　　./tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc
+

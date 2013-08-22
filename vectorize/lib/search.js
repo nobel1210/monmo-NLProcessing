@@ -55,6 +55,6 @@ if ( _VERBOSE ) {
 	var _c_doc = _doc.find(query);
 	while ( _c_doc.hasNext() ) {
 		var doc = _c_doc.next();
-		print( doc._id + ' : ' + utils.strView(doc[meta.doc_field],_VERBOSE_LEN));
+		print(  ' * ' + doc._id + ' : ' + utils.strView(doc[meta.doc_field],_VERBOSE_LEN));
 	}
 }

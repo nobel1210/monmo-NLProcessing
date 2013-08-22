@@ -44,24 +44,9 @@
 　　　　　 4. 動詞の連用形は『っ』は助詞、助動詞が必須。=> た　　　：（助動詞）『た』原型
 　　　　　
 * クイックスタート
-　　０．MongoDBを準備
-　　　　/usr/local/mongo以下にMongoDBを構築するか、既存のMongoDBのパスに合わせてmongo.envを編集する。
-
-　　　　MongoDB構築編
-
-　　　　　　cd /tmp
-　　　　　　wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.4.5.tgz
-　　　　　　tar xzf mongodb-linux-x86_64-2.4.5.tgz
-　　　　　　mkdir /usr/local/mongo
-　　　　　　mv mongodb-linux-x86_64-2.4.5/bin /usr/local/mongo
-　　　　　　mkdir /usr/local/mongo/data
-　　　　　　mkdir /usr/local/mongo/logs
-
-　　　　　　mongodの起動にはサンプルコンフィグを利用しても良いでしょう。
-　　　　　　　　https://github.com/crumbjp/analysis/blob/master/sample/mongod.conf　　　　
-
-　　　　　　/usr/local/mongo/bin/mongod -f <path to project>/sample/mongod.conf
-
+　　０．MONMO環境を構築
+				
+　　　　　https://github.com/monmo/monmo/blob/master/README
 
 　　１．IPA辞書をダウンロード
 
@@ -76,22 +61,15 @@
 
 　　３．動作確認（形態素解析結果が出力されます
 
-　　　　　./test.jp.sh -i "世界の皆さんこんにちは。" -o - -V
+　　　　　./test.jp.sh -i "世界の皆さんこんにちは。" 
 
 　　４．テストデータをMongoDBに投入
 
-　　　　　mongoimport --drop -d test -c sampledoc --file ../sample/sampledocs.json
+　　　　　mongoimport --drop -d test -c sampledoc --file ../sample/data/sampledocs.json
 
 　　５．複数ドキュメントを一気に解析
 
-　　　　　./tokenize.jp.sh -s test.sampledoc -f body -o test.token.sampledoc -C
-　　　　　./tokenize.jp.sh -s test.sampledoc -f body -o test.token.sampledoc
-
-
-　　　　並列処理する場合：
-
-　　　　　./tokenize.jp.sh -s test.sampledoc -f body -o test.token.sampledoc -C
-　　　　　./tokenize.jp.sh -s test.sampledoc -f body -o test.token.sampledoc -j 4
+　　　　　./tokenizer.jp.sh -s test.sampledoc -f body -o test.token.sampledoc
 
 
 　　６．結果を確認
@@ -113,13 +91,7 @@
 
 　　８．熟語解析
 
-　　　　　./tokenize.jp.sh -s test.sampledoc -C
-　　　　　./tokenize.jp.sh -s test.sampledoc
-
-　　　　並列処理する場合：
-
-　　　　　./tokenize.jp.sh -s test.sampledoc -C
-　　　　　./tokenize.jp.sh -s test.sampledoc -j 4
+　　　　　./phrase.sh -s test.token.sampledoc
 
 
 　　９．熟語解析結果
@@ -127,7 +99,7 @@
 
 　　　　cvフィールドが大きい程、熟語の確率が高い：
 
-　　　　　mongo test <<<'db.phrse.token.sampledoc.find({cv:{$gt:0}}).sort({cv:-1})'
+　　　　　mongo test <<<'db.phrase.token.sampledoc.find({cv:{$gt:0}}).sort({cv:-1})'
 
 
 
@@ -195,36 +167,6 @@
 
 　　　　{docid:1,idx:1}
 
-
-** 並列実行の動作と性能：
-
-　　ジョブ管理コレクション：　<結果コレクション>.job 
-
-　　　　各ジョブが同じドキュメントを処理する事を防ぐためにジョブ管理コレクションを作る。
-　　　　同じ結果コレクション名に対する処理は、同一ホストは勿論、別ホストで起動したジョブでも正常に動作できる。
-
-　　プライマリノードへの処理：
-
-　　　　形態素解析中の書き込み処理は以下の３つ。
-　　　　　１．ジョブ管理コレクションへのドキュメントID登録
-　　　　　２．解析結果の書き込み
-　　　　　３．カタカナ、アルファベット、数値を新単語として辞書へ登録
-
-　　性能面：
-
-　　　　プライマリノードのホスト
-　　　　　MONGO_NODE環境変数をローカルホスト（プライマリノード）に指定した場合
-　　　　　全てのDB操作がローカルホストで処理出来る為、一番高速に動作できる。
-
-　　　　　他のホストでもジョブを走らせる時は、mongod用のコアを１つ分は確保して置くと良い。
-
-　　　　セカンダリのホスト
-　　　　　MONGO_NODE環境変数をローカルホスト（セカンダリノード）に指定した場合
-　　　　　ドキュメントの取得と、辞書の参照（最大ボトルネック）をローカルホストから行える為、そこそこ早い。
-
-　　　　他のホスト　　　　
-　　　　　全てのDB操作をリモートから行う為、低速になる。
-　　　　　しかしMongoDBノード以外のCPUリソースを利用できるメリットがある。
 
 　　辞書ビルド：
 　　　　

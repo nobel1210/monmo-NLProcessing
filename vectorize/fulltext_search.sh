@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
-source $CURDIR/../monmo/mongo.env
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE
@@ -40,4 +40,4 @@ while true; do
 		shift
 done
 
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${EVAL}${VERBOSE}${VERBOSE_LEN}" ${CURDIR}/../monmo/lib/utils.js ${CURDIR}/../tokenize/lib/dictionary.js ${CURDIR}/../tokenize/lib/morpho.js ${CURDIR}/../tokenize/lib/jptokenizer.js ${CURDIR}/lib/search.js | grep -v '^loading file:'
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${EVAL}${VERBOSE}${VERBOSE_LEN}" ${MONMO_ROOT}/lib/utils.js ${CURDIR}/../tokenize/lib/dictionary.js ${CURDIR}/../tokenize/lib/morpho.js ${CURDIR}/../tokenize/lib/jptokenizer.js ${CURDIR}/lib/search.js | grep -v '^loading file:'

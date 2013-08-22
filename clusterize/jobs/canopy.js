@@ -11,6 +11,7 @@ function main(jobctl,options) {
 				return {ok:1};
 			},
 			create_job : function() {
+				return {ok:1};
 			},
 
 			prepare_run : function(){

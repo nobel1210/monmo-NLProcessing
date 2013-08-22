@@ -1,4 +1,69 @@
+* About CLUSTRIZE
 
-mongoimport -d test -c samplevector --file ../sample/samplevectors.json
+　　ベクトル群を距離を元にクラスタリングします。
 
-./bin/canopy.sh -s test.samplevector -v loc -2 20 -1 22
+　　現在は以下の機能が実装されています。
+
+　　　- Canopy
+　　　　　ベクトル群を大まかに解析し、クラスタ数と仮重心を算出する。
+　　　　　アルゴリズムの特性上、並列化が難しく速度に難あり。
+
+　　　- Kmeans
+　　　　　初期クラスタを元にベクトル群をクラスタリングします。
+
+
+* クイックスタート
+
+** サンプルデータをクラスタリングする
+
+　　０．MONMO環境を構築
+				
+　　　　　https://github.com/monmo/monmo/blob/master/README
+
+　　１．サンプルデータを投入
+
+　　　　mongoimport -d test -c samplevector --file ../sample/data/samplevectors.json
+
+　　２．Canopy
+
+　　　　./canopy.sh -s test.samplevector -f loc -2 20 -1 22
+
+　　３．仮重心を確認
+
+　　　　./viewcluster.sh -s test.canopy.samplevector.cluster
+
+　　４．Kmeans
+
+　　　　./kmeans.sh -s test.samplevector -f loc -i test.canopy.samplevector.cluster
+
+　　５．クラスター確認
+
+　　　　./viewcluster.sh -s test.kmeans.samplevector.fin.cluster
+
+
+** 自然言語処理
+
+　　１．ベクトル化まで行う
+
+　　　https://github.com/monmo/monmo-NLProcessing/blob/master/vectorize/README
+
+
+　　２．Canopy
+
+　　　　./canopy.sh -s test.vector.tfidf.token.sampledoc
+
+　　３．仮重心を確認
+
+　　　　./viewcluster.sh -s test.canopy.vector.tfidf.token.sampledoc.cluster
+
+　　４．Kmeans
+
+　　　　./kmeans.sh -s test.vector.tfidf.token.sampledoc -i test.canopy.vector.tfidf.token.sampledoc.cluster
+
+　　５．クラスター確認
+
+　　　　./viewcluster.sh -s test.kmeans.vector.tfidf.token.sampledoc.fin.cluster
+
+　　　詳細：
+
+　　　　./viewcluster.sh -s test.kmeans.vector.tfidf.token.sampledoc.fin.cluster -V

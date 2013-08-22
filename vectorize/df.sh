@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE
@@ -36,4 +37,4 @@ while true; do
 		shift
 done
 
-${CURDIR}/../monmo/bin/jobctl.sh ${SRC} ${OUT} -f ${CURDIR}/jobs/df.js
+${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -f ${CURDIR}/jobs/df.js

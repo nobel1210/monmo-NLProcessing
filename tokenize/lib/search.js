@@ -14,13 +14,17 @@ while ( _c_src.hasNext() ) {
 	var token = _c_src.next();
 	var docid = token.d.valueOf();
 	if ( ! docs[docid] ) {
-		docs[docid] = 0;
+		docs[docid] = {n:0,w:{}};
 	}
-	docs[docid]++;
+	if ( ! docs[docid].w[token.w] ) {
+		docs[docid].w[token.w] = 0;
+	}
+	docs[docid].n++;
+	docs[docid].w[token.w]++;
 }
 var sorted_docs = [];
 for ( var i in docs ){
-	sorted_docs.push({d:i,n:docs[i]});
+	sorted_docs.push({d:i,n:docs[i].n,w:docs[i].w});
 }
 sorted_docs = utils.sort(sorted_docs,function(a,b){return a.n > b.n});
 print('= DOCS =' );
@@ -39,7 +43,7 @@ if ( _VERBOSE ) {
 	var _c_doc = _doc.find(query);
 	while ( _c_doc.hasNext() ) {
 		var doc = _c_doc.next();
-		print( doc._id + ' : ' + utils.strView(doc[meta.doc_field],_VERBOSE_LEN));
+		print( ' * ' + doc._id + ' : ' + utils.strView(doc[meta.doc_field],_VERBOSE_LEN));
 	}
 }
 

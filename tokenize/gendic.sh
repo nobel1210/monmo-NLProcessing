@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 CURDIR=`dirname $0`
-source $CURDIR/../monmo/mongo.env
+source $CURDIR/../monmo.env
 
 usage (){
 cat<<USAGE
@@ -62,11 +62,11 @@ if [ "$IPADIC" != "" ]; then
 pwd
 		perl ${CURDIR}/bin/parsedic.pl $IPADIC > ${DICJS}
 		echo '=== IMPORT IPADIC ==='
-		PRIMARY=`${MONGO_SHELL} ${MONGO_NODE} --quiet ${CURDIR}/../monmo/lib/utils.js ${CURDIR}/../monmo/getprimary.js | tail -n 1`
+		PRIMARY=`${MONGO_SHELL} ${MONGO_NODE} --quiet ${MONMO_ROOT}/lib/utils.js ${MONMO_ROOT}/getprimary.js | tail -n 1`
 		${MONGO_IMPORT} -h ${PRIMARY} --drop -d ${DICDB} -c ${DICCOL}.ipadic --file ${DICJS}
 fi
 echo '=== BUILDING DICTIONARY ==='
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${NHEADS}" ${CURDIR}/../monmo/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/morpho.js ${CURDIR}/lib/gendic.js
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${NHEADS}" ${MONMO_ROOT}/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/morpho.js ${CURDIR}/lib/gendic.js
 echo '=== AMEND DICTIONARY ==='
-${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${NHEADS}" ${CURDIR}/../monmo/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/morpho.js ${CURDIR}/lib/amenddic.js
+${MONGO_SHELL} ${MONGO_NODE} --quiet --eval "${DIC}${NHEADS}" ${MONMO_ROOT}/lib/utils.js ${CURDIR}/lib/dictionary.js ${CURDIR}/lib/morpho.js ${CURDIR}/lib/amenddic.js
 echo '=== COMPLETE ==='

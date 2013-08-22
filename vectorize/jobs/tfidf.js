@@ -24,6 +24,7 @@ function main(jobctl,options) {
 				this.setmeta(this.meta);
 				
 				print('== TFIDF : ' + this.DSTCOL + ' ==');
+				return { ok:1 };
 			},
 			
 			map_cursor : function(){

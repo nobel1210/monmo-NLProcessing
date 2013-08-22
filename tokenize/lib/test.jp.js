@@ -17,7 +17,7 @@ var dst = {
 	},
 };
 
-var tokenizer = new JPTokenizer(dictionary,dst,false);
+var tokenizer = new JPTokenizer(dictionary,dst,_VERBOSE);
 var docid = ISODate();
 tokenizer.parse_doc(docid,_SENTENSE);
 print ( JSON.stringify(docid) + ' : ' + tokenizer.nquery + ' ( ' + tokenizer.nfetch + ' ) ');

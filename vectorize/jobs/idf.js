@@ -27,6 +27,7 @@ function main(jobctl,options) {
 				this.setmeta(this.meta);
 				
 				print('== IDF : ' + this.DSTCOL + ' ==');
+				return { ok:1 };
 			},
 			
 			map : function(id,val){
@@ -35,12 +36,10 @@ function main(jobctl,options) {
 //			if ( _VERBOSE ) {
 //				print('EXCEPT : ' + id + ' : ' + val.value + ' / ' + this.meta.docs + ' = ' + propotion);
 //			}
-				}else if ( this.ARGS['V'] ) {
-					if ( ! _dic.find({_id:ObjectId(id),t:'名詞'}).count() ) {
+				}else if ( this.ARGS['V'] && ! this.dictionary.find({_id:ObjectId(id),t:'名詞'}).count() ) {
 //				if ( _VERBOSE ) {
 //					print('NOT VERB : ' + id + ' : ' + val.value + ' / ' + this.meta.docs + ' = ' + propotion);
 //				}
-					}
 				} else {
 					this.dst.save({
 							_id: id,
@@ -53,6 +52,7 @@ function main(jobctl,options) {
 			
 			prepare_run : function(){
 				this.meta = this.getmeta2();
+				this.dictionary = utils.getCollection(this.meta.dic);
 				return {ok:1};
 			},
 			

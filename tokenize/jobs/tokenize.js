@@ -25,6 +25,7 @@ function main(jobctl,options) {
 				this.setmeta(meta);
 				
 				print('== TOKENIZE : ' + this.DSTCOL + ' ==');
+				return { ok:1 };
 			},
 			
 			map : function(id,val){

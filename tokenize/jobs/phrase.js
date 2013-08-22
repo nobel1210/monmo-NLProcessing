@@ -31,6 +31,7 @@ function main(jobctl,options) {
 				this.setmeta(this.meta);
 				
 				print('== PHRASE : ' + this.DSTCOL + ' ==');
+				return { ok:1 };
 			},
 			
 			map_cursor : function(){

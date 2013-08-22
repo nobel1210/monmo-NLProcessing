@@ -13,6 +13,7 @@ function main(jobctl,options) {
 				return {ok:1};
 			},
 			create_job : function() {
+				return {ok:1};
 			},
 
 			prepare_run : function(){
@@ -67,7 +68,7 @@ function main(jobctl,options) {
 	var NS = ret.dst;
 	options.args['meta'] = ret.data.meta;
 
-	for (var i = 1 ; i <= 10 ; i++ ) {
+	for (var i = 1 ; i <= 99 ; i++ ) {
 		var PREV_C = NS+'.it'+i+'.cluster';
 		var PREV_D = NS+'.it'+i+'.data';
 		var CUR_C  = NS+'.it'+(i+1)+'.cluster';
@@ -113,6 +114,9 @@ function main(jobctl,options) {
 						}
 					}
 					return {ok:1};
+				},
+				map_data : function(id,subjob){
+					return subjob;
 				},
 				map : function(id,val){
 					var cur = null;
@@ -172,9 +176,7 @@ function main(jobctl,options) {
 					return { ok:1 };
 				},
 				map_data : function(id){
-					return utils.getField(
-												 this.src.findOne({_id:id},{_id:1}),
-												 '_id');
+					return id;
 				},
 				map : function(id,val){
 					var newc = { _id : val, s:0, loc:{},st:0 };
@@ -252,25 +254,3 @@ Kmeans.prototype.finish = function(){
 	}
 }
 
-//var kmeans = new Kmeans(_SRC);
-//
-//if ( _CJOB ) {
-//	kmeans.clean();
-//	quit();
-//}
-//
-//print('== KMEANS ==');
-//kmeans.prepareIt();
-//kmeans.first(_CLUSTER,_CFIELD,_VFIELD);
-//for (var i = 0 ; i <= 99 ; i++ ) {
-//	kmeans.prepareIt();
-//	kmeans.createJob();
-//	var cs = kmeans.dataIterate();
-//	if ( ! cs ) {
-//		break;
-//	}
-//	kmeans.waitForData();
-//	kmeans.clusterIterate(cs);
-//	kmeans.waitForCluster();
-//}
-//kmeans.finish();
