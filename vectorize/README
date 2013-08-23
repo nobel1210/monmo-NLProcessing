@@ -112,3 +112,40 @@
 　　４．TF-IDFを再産出
 　　　./tfidf.sh -s test.vector.idf.token.sampledoc -o test.vector.tfidf.token.sampledoc
 
+* TODO
+
+　　差分解析を実装
+　　　完全なTF/IDFではなくとも、リアルタイム性を得る為に全体解析せずに値を得たい。
+
+　　　１．TFは普通にかける
+　　　２．DF,IDFはスキップし、既存の結果を使いTFIDFを得る。（新規単語はIDF=0とし無視）
+
+　　　頻出単語（ＤＦが大きい）では良い近似値が得られるが、反対に稀な単語は誤差が大きくなる。
+　　　そういった単語はIDFが大きく、重要単語である事が難点。
+
+　　　また初回解析でDF<=0の単語に至っては解析不能。
+
+      == 検証 ==
+
+                                              Doc1              Doc3000            Doc3001
+                N       DF        IDF         TF    TF/IDF      TF     TF/IDF      TF     TF/IDF
+初期ベクトル    3000    foo:10    foo:2.477   foo:0 foo:0       foo:1  foo:2.477   
+                        bar:1000  bar:0.477   bar:5 bar:2.385   bar:10 bar:4.770   
+                        baz:3     barz:3      baz:1 baz:3       baz:0  baz:0       
+                                                                                   
+Doc3001         3001    foo:11    foo:2.436   foo:0  foo:0      foo:1  foo:2.468   foo:2  foo:4.936
+本来の値                bar:1001  bar:0.477   bar:5 bar:2.385   bar:10 bar:4.770   bar:20 bar:9.54 
+                        baz:4     baz:2.875   baz:1 baz:2.875   baz:0  baz:0       baz:2  baz:5.750
+                                                                                   
+Doc3001         3000    foo:10    foo:2.477   foo:0  foo:0      foo:1  foo:2.477   foo:2  foo:4.954 
+N,DF更新せず            bar:1000  bar:0.477   bar:5 bar:2.385   bar:10 bar:4.77    bar:20 bar:9.54 
+                        baz:3     barz:3      baz:1 baz:3       baz:0  baz:0       baz:2  baz:6     
+
+
+N,DFを更新しない（差分計算の）場合
+Doc3001 のfoo2 が若干高めに出、baz2 が若干低めに出ている。
+但し、他の既存ドキュメント（Doc1 , Doc3000）も同じ傾向。相対的な誤差は小さいとみて良さそう。
+
+　　　TFIDFの実装の都合上、idfコレクションの.metaを参照するが
+　　　この辺りを引数で修正してあげれば、スムーズに改修できそう。
+

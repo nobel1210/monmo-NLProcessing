@@ -262,3 +262,22 @@
 　　　　var dicword = morpho.forms(nheads,word)
 　　		db.dictionary.findAndModify({ query: {w:dicword.w}, update: dicword, upsert: true, new:true});
 　
+* TODO
+
+　　熟語解析結果の利用方法を検討
+　　　- 辞書更新の必要性
+　　　　　→　辞書更新すると、次から熟語を単語として抽出するようになる。
+　　　　　『宇宙』『開発』『競争』は『宇宙開発競争』になり、『宇宙』でも『開発』でも『競争』出もなくなる。
+　　　　　これはC-VALUE評価で解決できるが、ノイズとベクトルの肥大化が問題となる。
+
+　　White space tokenizerを実装
+　　　　英語を解析する場合に必要
+
+
+　　正規化
+　　　　辞書を弄る事で実現できそう。（活用形と同じ扱いでいけるか？）
+
+
+　　ＡＳＣＩＩ正規化
+　　　　現在は全角に寄せているが、本来は半角に寄せて、英語解析と互換した方がいい。
+

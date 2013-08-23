@@ -67,3 +67,9 @@
 　　　詳細：
 
 　　　　./viewcluster.sh -s test.kmeans.vector.tfidf.token.sampledoc.fin.cluster -V
+
+
+* TODO
+
+　　差分解析を実装
+　　　と言っても、ただのNearest。
