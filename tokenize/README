@@ -65,7 +65,7 @@
 
 　　４．テストデータをMongoDBに投入
 
-　　　　　mongoimport --drop -d test -c sampledoc --file ../sample/data/sampledocs.json
+　　　　　mongoimport --drop -d test -c sampledoc --file ../sample/sampledocs.json
 
 　　５．複数ドキュメントを一気に解析
 

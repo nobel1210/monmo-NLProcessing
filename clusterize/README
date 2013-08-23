@@ -22,7 +22,7 @@
 
 　　１．サンプルデータを投入
 
-　　　　mongoimport -d test -c samplevector --file ../sample/data/samplevectors.json
+　　　　mongoimport -d test -c samplevector --file ../sample/samplevectors.json
 
 　　２．Canopy
 
@@ -73,3 +73,4 @@
 
 　　差分解析を実装
 　　　と言っても、ただのNearest。
+　　　すぐ作れるから後回し。

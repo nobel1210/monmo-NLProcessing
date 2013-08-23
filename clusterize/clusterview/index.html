@@ -225,8 +225,8 @@ $(function(){
   var col = sp.join('\.');
 
   view(99
-       ,'http://'+args.h+'/'+db+'/'+col+'.cluster/'
-       ,'http://'+args.h+'/'+db+'/'+col+'.data/'
+       ,''+args.h+'/'+db+'/'+col+'.cluster/'
+       ,''+args.h+'/'+db+'/'+col+'.data/'
        );
 
   var xaxis = {
@@ -246,7 +246,6 @@ $(function(){
     alignTicksWithAxis: 1
   };
   function plot(target,data,colors){
-console.log(colors);
       $.plot(target, data, {
 	series: {
           lines: { show: false },
