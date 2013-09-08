@@ -1,24 +1,26 @@
 function main(jobctl,options) {
-	var ret = jobctl.put( function(){ 
-		return new Job({
+	var ret = jobctl.put( 'job', { 
 			empty_dst : function(){
 				var psrc = utils.parseCollection(this.SRCCOL);
 				return psrc.db + '.canopy.'   +psrc.col;
 			},
 			prepare_create : function() {
-				var pdst = utils.parseCollection(this.DSTCOL);
 				utils.cleanCollections(this.DSTCOL+'\.');
 				return {ok:1};
 			},
 			create_job : function() {
 				return {ok:1};
 			},
-
+      
 			prepare_run : function(){
 				this.meta   = utils.getmeta(this.src);
+        this.diffFunc   =  utils.diffVector;
 				if ( this.ARGS['N'] ) {
 					this.meta.normalize = true;
 				}
+        if ( this.meta.normalize ) {
+          this.diffFunc   =  utils.diffAngle;
+        }
 				this.meta.vector = this.SRCCOL;
 				this.meta.canopy = {
 					ns:this.DSTCOL + '.cluster',
@@ -29,10 +31,10 @@ function main(jobctl,options) {
 				}
 				this.cluster = utils.getWritableCollection(this.meta.canopy.ns);
 				utils.setmeta(this.cluster,this.meta);
-
+        
 				return {ok:1};
 			},
-
+      
 			run : function() {
 				var ret = {
 					ok : 1,
@@ -54,7 +56,7 @@ function main(jobctl,options) {
 						});					
 					}
 				}
-
+        
 				print('== T2 sampling  ==');
 				var cs = [];
 				var _c_data = datacol.find();
@@ -63,7 +65,7 @@ function main(jobctl,options) {
 					var n = 0;
 					for ( var c in cs ){
 						var cluster = cs[c];
-						var diff = utils.diffVector(cluster.loc,data.value.loc);
+						var diff = this.diffFunc(cluster.loc,data.value.loc);
 						if ( diff < this.meta.canopy.t2 ) {
 							n++;
 							break;
@@ -78,7 +80,7 @@ function main(jobctl,options) {
 				while ( _c_data.hasNext() ){
 					var data = _c_data.next();
 					for ( var c in cs ){
-						var diff = utils.diffVector(cs[c].loc,data.value.loc);
+						var diff = this.diffFunc(cs[c].loc,data.value.loc);
 						if ( diff < this.meta.canopy.t1 ) {
 							cs[c].newloc = utils.addVector(cs[c].newloc,data.value.loc);
 							cs[c].s++;
@@ -86,7 +88,7 @@ function main(jobctl,options) {
 					}
 				}
 				ret.data.first = cs.length;
-
+        
 				var newcs = [];
 				print('== Reduce minor clusters  ==');
 				var threshold = data_count / cs.length * this.meta.canopy.threshold;
@@ -107,9 +109,9 @@ function main(jobctl,options) {
 					newcs.push(newc);
 				}
 				ret.data.minor = newcs.length;
-
+        
 				ret.data.closed = [];
-
+        
 				print('== Reduce closed clusters  ==');
 				for ( var c in newcs ) {
 					var cluster = newcs[c];
@@ -119,7 +121,7 @@ function main(jobctl,options) {
 						for ( var i in newcs ) {
 							var cmp = newcs[i];
 							if ( cmp ) {
-								var diff = utils.diffVector( cluster.loc, cmp.loc );
+								var diff = this.diffFunc( cluster.loc, cmp.loc );
 								if ( diff < this.meta.canopy.t2 ) {
 									if ( s < cmp.s ) {
 										s = cmp.s;
@@ -147,7 +149,6 @@ function main(jobctl,options) {
 				
 				return ret;
 			}
-		});
 	},options);
 }
 

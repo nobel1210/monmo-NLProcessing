@@ -44,11 +44,12 @@ function main(jobctl,options) {
 
 	utils.setmeta(utils.getWritableCollection(meta.kmeans.data),meta);
 	utils.setmeta(utils.getWritableCollection(meta.kmeans.cluster),meta);
+
+  printjson(meta);
   return;
 
   function first_job() {
-	  return ret = jobctl.put( function(){
-		  return new Job({
+	  return ret = jobctl.put( 'job',{
 			  empty_dst : function(){
 				  var psrc = utils.parseCollection(this.SRCCOL);
 				  return psrc.db + '.kmeans.'   +psrc.col;
@@ -108,119 +109,121 @@ function main(jobctl,options) {
 					  data : { meta: this.meta }
 				  }
 			  }
-		  });
 	  },options);
   }
 
   function deploy_data(){
 		// data iterate
-		return jobctl.put( function(){
-			return new Map({
-				prepare_create : function(){
-					this.dst.ensureIndex({'c':1});
-					return {ok:1};
-				},
-				prepare_run : function(){
-					this.cs = utils.getClusters(this.ARGS['cluster']);
-					if ( ! this.cs ) {
-						return {
-							ok : 0,
-							msg: 'Could not get cluster info',
-							data:this.cs
-						}
-					}
-					
-					if ( this.ARGS['prev_cluster'] ){
-						var cs_history = utils.getClusters(this.ARGS['prev_cluster']);
-						this.cdiff = 0;
-            
-						for ( var c in this.cs ){
-							this.cdiff += utils.diffVector(this.cs[c].loc,cs_history[c].loc);
-						}	
-						print('Cluster diff: '+this.cdiff);
-						if ( this.cdiff < 1.0e-12 ) {
-							return {
-								ok : 2,
-								msg: 'End of iteration',
-								data: {cdiff: this.cdiff}
-							}
-						}
-					}
-					return {ok:1};
-				},
-				map_data : function(id,subjob){
-					return subjob;
-				},
-				map : function(id,val){
-					var cur = null;
-					var min = null;
-					var cssum     = 0;
-					val.cs = [];
-					
-					for ( var c in this.cs ){
-						var diff = utils.diffVector(this.cs[c].loc , val.loc);
-						if ( min === null || min > diff ) {
-							cur = c;
-							min = diff;
-						}
-						var score = Number.MAX_VALUE;
-						if ( diff ) {
-							score = 1/diff;
-						}
-						val.cs.push({c:c,s:score});
-						cssum += score;
-					}
-					val.c  = cur;
-					for ( var i in val.cs ){
-						val.cs[i].s /= cssum;
-						val.cs[i].s = (val.cs[i].s<1.0e-12)?0:val.cs[i].s;
-					}
-					val.cs = utils.sort(val.cs,function(a,b){ return a.s > b.s;});
-					val.st = 0;
-					this.dst.save(val);
-				},
-				unique_post_run : function(){
+    return map(jobctl,options,{
+			prepare_create : function(){
+				this.dst.ensureIndex({'c':1});
+				return {ok:1};
+			},
+			prepare_run : function(){
+				this.meta = this.ARGS['meta'];
+        this.diffFunc   =  utils.diffVector;
+				if ( this.meta.normalize ) {
+          this.diffFunc   =  utils.diffAngle;
+        }
+				this.cs = utils.getClusters(this.ARGS['cluster']);
+				if ( ! this.cs ) {
 					return {
-						cdiff : this.cdiff
-					};
-					return true;
-				}
-			},true);
-		},options);
-  }
-
-  function move_center(){
-		return jobctl.put( function(){
-			return new Map({
-				prepare_create : function(){
-					return { ok:1 };
-				},
-				prepare_run : function(){
-					this.data = utils.getCollection(this.ARGS['data']);
-					this.meta = this.ARGS['meta'];
-					return { ok:1 };
-				},
-				map_data : function(id){
-					return id;
-				},
-				map : function(id,val){
-					var newc = { _id : val, s:0, loc:{},st:0 };
-					var _c_data = this.data.find({'c':val});
-					while(_c_data.hasNext()){
-						var data = _c_data.next();
-						newc.loc = utils.addVector(newc.loc,data.loc);
-						newc.s++;
+						ok : 0,
+						msg: 'Could not get cluster info',
+						data:this.cs
 					}
-					if ( this.meta.normalize ) {
-						newc.loc = utils.normalize(newc.loc);
-					}else{
-						for ( var d in newc.loc ) {
-							newc.loc[d] /=  newc.s;
+				}
+				
+				if ( this.ARGS['prev_cluster'] ){
+					var cs_history = utils.getClusters(this.ARGS['prev_cluster']);
+					this.cdiff = 0;
+          
+					for ( var c in this.cs ){
+						this.cdiff += this.diffFunc(this.cs[c].loc,cs_history[c].loc);
+					}	
+					print('Cluster diff: '+this.cdiff);
+					if ( this.cdiff < 1.0e-12 ) {
+						return {
+							ok : 2,
+							msg: 'End of iteration',
+							data: {cdiff: this.cdiff}
 						}
 					}
-					this.dst.save(newc);
 				}
-			},true);
-		},options);
+				return {ok:1};
+			},
+			map_data : function(id,subjob){
+				return subjob;
+			},
+			map : function(id,val){
+				var cur = null;
+				var min = null;
+				var cssum     = 0;
+				val.cs = [];
+				
+				for ( var c in this.cs ){
+					var diff = this.diffFunc(this.cs[c].loc , val.loc);
+					if ( min === null || min > diff ) {
+						cur = c;
+						min = diff;
+					}
+					var score = Number.MAX_VALUE;
+					if ( diff ) {
+						score = 1/diff;
+					}
+					val.cs.push({c:c,s:score});
+					cssum += score;
+				}
+				val.c  = cur;
+				for ( var i in val.cs ){
+					val.cs[i].s /= cssum;
+					val.cs[i].s = (val.cs[i].s<1.0e-12)?0:val.cs[i].s;
+				}
+				val.cs = utils.sort(val.cs,function(a,b){ return a.s > b.s;});
+				val.st = 0;
+				this.dst.save(val);
+			},
+			unique_post_run : function(){
+				return {
+					cdiff : this.cdiff
+				};
+				return true;
+			},
+      direct : true
+		});
+  }
+  
+  function move_center(){
+    return map(jobctl,options,{
+			prepare_create : function(){
+				return { ok:1 };
+			},
+			prepare_run : function(){
+				this.data = utils.getCollection(this.ARGS['data']);
+				this.meta = this.ARGS['meta'];
+				return { ok:1 };
+			},
+			map_data : function(id){
+				return id;
+			},
+			map : function(id,val){
+				var newc = { _id : val, s:0, loc:{},st:0 };
+				var _c_data = this.data.find({'c':val});
+				while(_c_data.hasNext()){
+					var data = _c_data.next();
+					newc.loc = utils.addVector(newc.loc,data.loc);
+					newc.s++;
+				}
+				if ( this.meta.normalize ) {
+					newc.loc = utils.normalize(newc.loc);
+				}else{
+					for ( var d in newc.loc ) {
+						newc.loc[d] /=  newc.s;
+					}
+				}
+				this.dst.save(newc);
+			},
+      direct : true
+		});
   }
 }

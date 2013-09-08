@@ -1,6 +1,7 @@
 var _src         = utils.getCollection(_SRC);
 var meta         = utils.getmeta(_src);
 
+printjson(meta);
 var _c_src = _src.find({_id:{'$ne':'.meta'}});
 while ( _c_src.hasNext() ) {
 	var cluster = _c_src.next();
@@ -37,7 +38,7 @@ while ( _c_src.hasNext() ) {
 			var data = _c_data.next();
 			var oid = ObjectId(data._id);
 			var doc = _doc.findOne({_id:oid},filter);
-			print('_id:('+ doc._id + ') : ' + utils.strView(doc[meta.doc_field],_VERBOSE_LEN));		
+			print('_id:('+ doc._id + ') : ' + utils.trimSpace(doc[meta.doc_field]).slice(0,_VERBOSE_LEN));		
 		}
 	}
 }

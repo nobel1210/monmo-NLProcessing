@@ -22,11 +22,11 @@ USAGE
 
 FIELD="F:'value'"
 CFIELD="C:'loc'"
+LOOP="L:99"
 
 
 
-
-OPTIONS=`getopt -o hs:o:f:i:c:j:C --long help,source:,output:,field:,initial-cluster:,cluster-field:, -- "$@"`
+OPTIONS=`getopt -o hs:o:f:i:c: --long help,source:,output:,field:,initial-cluster:,cluster-field:, -- "$@"`
 if [ $? != 0 ] ; then
   exit 1
 fi
@@ -46,4 +46,4 @@ while true; do
 		shift
 done
 
-${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${INITIAL},${CFIELD}}" -f ${CURDIR}/jobs/kmeans.js
+${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${INITIAL},${CFIELD},${LOOP}}" -f ${CURDIR}/jobs/kmeans.js

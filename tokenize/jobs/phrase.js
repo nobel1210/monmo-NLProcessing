@@ -1,6 +1,5 @@
 function main(jobctl,options) {
-	jobctl.put( function(){ 
-		return new Map({
+  return map(jobctl,options,{
 			empty_dst : function(){
 				var psrc = utils.parseCollection(this.SRCCOL);
 				return psrc.db + '.phrase.'   +psrc.col;
@@ -131,7 +130,6 @@ function main(jobctl,options) {
 				
 				return this.meta;
 			}
-		});
 	},options);
 }
 						 

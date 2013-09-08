@@ -1,6 +1,5 @@
 function main(jobctl,options) {
-	jobctl.put( function(){ 
-		return new Map({
+  return map(jobctl,options,{
 			empty_dst : function(){
 				var psrc = utils.parseCollection(this.SRCCOL);
 				return psrc.db + '.vector.tfidf.'   +psrc.col;
@@ -75,6 +74,5 @@ function main(jobctl,options) {
 			unique_post_run : function(){
 				return this.meta;
 			}
-		});
 	},options);
 }

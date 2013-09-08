@@ -22,11 +22,11 @@
 
 　　１．サンプルデータを投入
 
-　　　　mongoimport -d test -c samplevector --file ../sample/samplevectors.json
+　　　　mongoimport -d test -c samplevector --file ../sample/samplevectors2.json
 
 　　２．Canopy
 
-　　　　./canopy.sh -s test.samplevector -f loc -2 20 -1 22
+　　　　./canopy.sh -s test.samplevector -f loc -2 26 -1 30
 
 　　３．仮重心を確認
 

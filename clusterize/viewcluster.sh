@@ -12,6 +12,13 @@ Options :
     -s, --source      ns      : Target collection ns
     -V, --verbose             : 
     -L, --verbose-length      : View document size
+
+Format : 
+
+  ====== <cluster_id> ( <#members> ) ======
+  <weight> : word
+    :
+
 USAGE
   exit $1
 }

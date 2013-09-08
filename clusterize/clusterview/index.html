@@ -109,11 +109,13 @@ $(function(){
     var ndim = 0;
     for ( var v in value ) {
       var rad = all.all[v]*unit;
-      loc[0] += value[v]*Math.cos(rad);
-      loc[1] += value[v]*Math.sin(rad);
+      var div = Math.cos(rad) + Math.sin(rad);
+      loc[0] += value[v]*Math.cos(rad) / div;
+      loc[1] += value[v]*Math.sin(rad) / div;
       ndim++;
     }
-    return loc;
+    // return loc;
+    return [ Math.atan(loc[0]/loc[1]), Math.sqrt(loc[0]*loc[0]+loc[1]*loc[1]) ];
   }
 
   function view(n,url1,url2) {
@@ -124,30 +126,31 @@ $(function(){
 	limit: 100000
       },
       jsonp: 'jsonp',
-      success: function(data,type){
+      success: function(cdata,type){
 	var colors = [];
 	var pdata = [];
-	if ( data.total_rows === 0 ) {
+	if ( cdata.total_rows === 0 ) {
 	  return;
 	}
-	var cs = [];
-	var all = getall(data.rows,function(row){return row.loc;});
-	for( var r in data.rows ) {
-	  if ( data.rows[r]._id === '.meta' ) {
+//	var cs = [];
+  var cs = {};      
+	var all = getall(cdata.rows,function(row){return row.loc;});
+	for( var r in cdata.rows ) {
+	  if ( cdata.rows[r]._id === '.meta' ) {
 	    continue;
 	  }
-	  var value = data.rows[r];
+	  var value = cdata.rows[r];
 	  var loc = getloc(all,value.loc);
-	  cs.push(loc);
-	  data.rows[r]._id;
+    cs[cdata.rows[r]._id] = [loc];
+//	  cs.push(loc);
 	}
-	colors.push('#ff0000');
-	pdata.push({
-	  label:"cluster",
-	  yaxis:1,
-	  points: { show:true, radius:5,lineWidth:3 },
-	  data: cs
-	});
+//	colors.push('#ff0000');
+//	pdata.push({
+//	  label:"cluster",
+//	  yaxis:1,
+//	  points: { show:true, radius:5,lineWidth:3 },
+//	  data: cs
+//	});
 
 	  $.ajax({
 	    url: url2,
@@ -178,6 +181,15 @@ $(function(){
 		var cstr = c.toString(16);
 		var clen = cstr.length;
 		colors.push('#'+cstr.substring(clen-6,clen));
+		colors.push('#'+cstr.substring(clen-6,clen));
+
+  	pdata.push({
+	    label:"c"+p,
+	    yaxis:1,
+	    points: { show:true, radius:5,lineWidth:3 },
+	    data: cs[p]
+	  });
+
 		pdata.push({
 		  label:p,
 		  yaxis:1,
