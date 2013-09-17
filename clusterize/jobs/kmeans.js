@@ -11,6 +11,9 @@ function main(jobctl,options) {
 		var CUR_C  = NS+'.it'+(i+1)+'.cluster';
 		var CUR_D  = NS+'.it'+(i+1)+'.data';
 		
+	  options.args['meta'].kmeans.data   = CUR_D;
+	  options.args['meta'].kmeans.cluster= CUR_C;
+
 		print('== '+i+' DATA ==');
 		options.src = PREV_D;
 		options.dst = CUR_D;
@@ -150,6 +153,7 @@ function main(jobctl,options) {
 						}
 					}
 				}
+				utils.setmeta(this.dst,this.meta);
 				return {ok:1};
 			},
 			map_data : function(id,subjob){
@@ -201,6 +205,7 @@ function main(jobctl,options) {
 			prepare_run : function(){
 				this.data = utils.getCollection(this.ARGS['data']);
 				this.meta = this.ARGS['meta'];
+				utils.setmeta(this.dst,this.meta);
 				return { ok:1 };
 			},
 			map_data : function(id){
@@ -217,9 +222,7 @@ function main(jobctl,options) {
 				if ( this.meta.normalize ) {
 					newc.loc = utils.normalize(newc.loc);
 				}else{
-					for ( var d in newc.loc ) {
-						newc.loc[d] /=  newc.s;
-					}
+					newc.loc = utils.normalize(newc.loc,newc.s);
 				}
 				this.dst.save(newc);
 			},

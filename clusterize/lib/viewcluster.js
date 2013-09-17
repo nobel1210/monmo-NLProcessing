@@ -34,10 +34,16 @@ while ( _c_src.hasNext() ) {
 		var _doc         = utils.getCollection(meta.doc);
 		var _data        = utils.getCollection(meta.kmeans.data);
 		var _c_data = _data.find({c:cluster._id});
+    var oid = true;
 		while(_c_data.hasNext()){
 			var data = _c_data.next();
-			var oid = ObjectId(data._id);
-			var doc = _doc.findOne({_id:oid},filter);
+      var id = '';
+      try { 
+        id = ObjectId(data._id);
+      }catch(e){
+        id = data._id;
+      }
+			var doc = _doc.findOne({_id:id},filter);
 			print('_id:('+ doc._id + ') : ' + utils.trimSpace(doc[meta.doc_field]).slice(0,_VERBOSE_LEN));		
 		}
 	}

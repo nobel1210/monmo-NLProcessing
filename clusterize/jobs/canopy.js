@@ -29,6 +29,12 @@ function main(jobctl,options) {
 					threshold:this.ARGS['T'],
 					field:this.ARGS['F']
 				}
+				this.meta.progress = {
+          f : '',
+          n : 0,
+          nc: 0,
+        }
+
 				this.cluster = utils.getWritableCollection(this.meta.canopy.ns);
 				utils.setmeta(this.cluster,this.meta);
         
@@ -58,9 +64,11 @@ function main(jobctl,options) {
 				}
         
 				print('== T2 sampling  ==');
+        var nsample = 0;
 				var cs = [];
-				var _c_data = datacol.find();
+				var _c_data = datacol.find().addOption(DBQuery.Option.noTimeout);
 				while ( _c_data.hasNext() ){
+          nsample++;
 					var data = _c_data.next();
 					var n = 0;
 					for ( var c in cs ){
@@ -74,10 +82,18 @@ function main(jobctl,options) {
 					if ( n === 0 ) {
 						cs.push({ s : 0, loc : data.value.loc, newloc:{} });
 					}
+          if ( ! (nsample % 10) ) {
+            this.meta.progress.f  = 'T2';
+            this.meta.progress.nc = cs.length;
+            this.meta.progress.n  = nsample;
+				    utils.resetmeta(this.cluster,this.meta);
+          }
 				}
 				print('== T1 sampling  ==');
-				var _c_data = datacol.find();
+        var nsample = 0;
+				var _c_data = datacol.find().addOption(DBQuery.Option.noTimeout);
 				while ( _c_data.hasNext() ){
+          nsample++;
 					var data = _c_data.next();
 					for ( var c in cs ){
 						var diff = this.diffFunc(cs[c].loc,data.value.loc);
@@ -86,6 +102,12 @@ function main(jobctl,options) {
 							cs[c].s++;
 						}
 					}
+          if ( ! (nsample % 10) ) {
+            this.meta.progress.f  = 'T1';
+            this.meta.progress.nc = cs.length;
+            this.meta.progress.n  = nsample;
+				    utils.resetmeta(this.cluster,this.meta);
+          }
 				}
 				ret.data.first = cs.length;
         
