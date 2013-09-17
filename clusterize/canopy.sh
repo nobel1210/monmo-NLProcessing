@@ -50,4 +50,4 @@ while true; do
 		shift
 done
 
-${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${THRESHOLD},${T1},${T2},${NORMALIZE}}" -f ${CURDIR}/jobs/canopy2.js
+${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${THRESHOLD},${T1},${T2},${NORMALIZE}}" -f ${CURDIR}/jobs/canopy3.js

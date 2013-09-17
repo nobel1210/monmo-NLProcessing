@@ -45,8 +45,8 @@ function main(jobctl,options) {
 	utils.getWritableCollection(options.args['data']).renameCollection(pns.col+'.fin.data');
 	utils.getWritableCollection(options.args['cluster']).renameCollection(pns.col+'.fin.cluster');
 
-	utils.setmeta(utils.getWritableCollection(meta.kmeans.data),meta);
-	utils.setmeta(utils.getWritableCollection(meta.kmeans.cluster),meta);
+	utils.resetmeta(utils.getWritableCollection(meta.kmeans.data),meta);
+	utils.resetmeta(utils.getWritableCollection(meta.kmeans.cluster),meta);
 
   printjson(meta);
   return;
@@ -156,6 +156,9 @@ function main(jobctl,options) {
 				utils.setmeta(this.dst,this.meta);
 				return {ok:1};
 			},
+			map_timeout : function(){
+		    return 6000000;
+      },
 			map_data : function(id,subjob){
 				return subjob;
 			},
