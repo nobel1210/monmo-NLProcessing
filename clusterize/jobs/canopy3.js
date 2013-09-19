@@ -32,13 +32,9 @@ function main(jobctl,options) {
       
 			prepare_run : function(){
 				this.meta   = utils.getmeta(this.src);
-        this.diffFunc   =  utils.diffVector;
 				if ( this.ARGS['N'] ) {
 					this.meta.normalize = true;
 				}
-        if ( this.meta.normalize ) {
-          this.diffFunc   =  utils.diffAngle;
-        }
 				this.meta.vector = this.SRCCOL;
 				this.meta.canopy = {
 					tmp    :  this.DSTCOL + '.tmp',
@@ -97,9 +93,10 @@ function main(jobctl,options) {
 				return subjob;
 			},
 			map : function(id,val){
+        val.value.loc = utils.tojson(val.value.loc);
 				for ( var c in this.cs ){
 					var cluster = this.cs[c];
-					var diff = this.diffFunc(cluster.loc,val.value.loc);
+					var diff = this.diffFunc(val.value.loc,cluster.loc);
 					if ( diff < this.meta.canopy.t2 ) {
 						return;
 					}
@@ -108,7 +105,7 @@ function main(jobctl,options) {
 				this.cs = utils.getClusters(this.meta.canopy.tmp);
 				for ( var c in this.cs ){
 					var cluster = this.cs[c];
-					var diff = this.diffFunc(cluster.loc,val.value.loc);
+					var diff = this.diffFunc(val.value.loc,cluster.loc);
 					if ( diff < this.meta.canopy.t2 ) {
 						return;
 					}
@@ -150,8 +147,9 @@ function main(jobctl,options) {
 				return subjob;
 			},
 			map : function(id,val){
+        val.value.loc = utils.tojson(val.value.loc);
 				for ( var c in this.cs ){
-				  var diff = this.diffFunc(this.cs[c].loc,val.value.loc);
+				  var diff = this.diffFunc(val.value.loc,this.cs[c].loc);
 				  if ( diff < this.meta.canopy.t1 ) {
             this.emit(c,{loc:val.value.loc,s:1});
           }
@@ -174,6 +172,7 @@ function main(jobctl,options) {
         var _cursor = this.dst.find(utils.IGNORE_META);
         while(_cursor.hasNext()){
           var cluster = _cursor.next();
+          cluster = utils.tojson(cluster);
 					if ( cluster.s <= threshold ) {
 						continue;
 					}

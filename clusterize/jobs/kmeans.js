@@ -166,10 +166,10 @@ function main(jobctl,options) {
 				var cur = null;
 				var min = null;
 				var cssum     = 0;
+        val = utils.tojson(val);
 				val.cs = [];
-				
 				for ( var c in this.cs ){
-					var diff = this.diffFunc(this.cs[c].loc , val.loc);
+					var diff = this.diffFunc(val.loc , this.cs[c].loc);
 					if ( min === null || min > diff ) {
 						cur = c;
 						min = diff;
@@ -181,6 +181,7 @@ function main(jobctl,options) {
 					val.cs.push({c:c,s:score});
 					cssum += score;
 				}
+
 				val.c  = cur;
 				for ( var i in val.cs ){
 					val.cs[i].s /= cssum;
