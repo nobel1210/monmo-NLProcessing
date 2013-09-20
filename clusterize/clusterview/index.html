@@ -77,7 +77,7 @@
              a.push(arr[i]);
            }
          }
-         return sort(b,comparator).concat([c]).concat(sort(a,comparator));
+         return sort(b,comparator).concat(c).concat(sort(a,comparator));
        }
        
        function getall(rows,callback){
@@ -182,8 +182,16 @@
 		               ps[value.c].push(loc);
 		               idx[value.c].push(data.rows[r]._id);
 	               }
-	               var c=0x000000;
+
+                 var keys = [];
 	               for ( var p in ps ) {
+                   keys.push(p);
+                 }
+                 keys = sort(keys,function(a,b){ return a < b; } );
+
+	               var c=0x000000;
+	               for ( var k in keys ) {
+                   var p = keys[k];
 		               c += 0x113985;
 		               var cstr = c.toString(16);
 		               var clen = cstr.length;

@@ -156,9 +156,6 @@ function main(jobctl,options) {
 				utils.setmeta(this.dst,this.meta);
 				return {ok:1};
 			},
-			map_timeout : function(){
-		    return 6000000;
-      },
 			map_data : function(id,subjob){
 				return subjob;
 			},
