@@ -23,10 +23,11 @@ USAGE
 FIELD="F:'value'"
 CFIELD="C:'loc'"
 LOOP="L:99"
+INITIAL="I:null"
+RESUME="R:null"
 
 
-
-OPTIONS=`getopt -o hs:o:f:i:c: --long help,source:,output:,field:,initial-cluster:,cluster-field:, -- "$@"`
+OPTIONS=`getopt -o hs:o:f:i:c:r: --long help,source:,output:,field:,initial-cluster:,cluster-field:,resume: -- "$@"`
 if [ $? != 0 ] ; then
   exit 1
 fi
@@ -35,15 +36,16 @@ while true; do
     OPTARG=$2
     case $1 in
 				-h|--help)       usage 0 ;;
-				-s|--source)       SRC="-s ${OPTARG}";shift;;
-				-o|--output)       OUT="-o ${OPTARG}";shift;;
-				-f|--field)        FIELD="F:'${OPTARG}'";shift;;
-				-i|--initial-cluster)  INITIAL="I:'${OPTARG}'";shift;;
-				-c|--cluster-field)    CFIELD="C:'${OPTARG}'";shift;;
+				-s|--source)          SRC="-s ${OPTARG}";shift;;
+				-o|--output)          OUT="-o ${OPTARG}";shift;;
+				-f|--field)           FIELD="F:'${OPTARG}'";shift;;
+				-i|--initial-cluster) INITIAL="I:'${OPTARG}'";shift;;
+				-c|--cluster-field)   CFIELD="C:'${OPTARG}'";shift;;
+				-r|--resume)          RESUME="R:'${OPTARG}'";shift;;
 				--) shift;break;;
 				*) echo "Internal error! " >&2; exit 1 ;;
     esac
 		shift
 done
 
-${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${INITIAL},${CFIELD},${LOOP}}" -f ${CURDIR}/jobs/kmeans.js
+${MONMO_ROOT}/bin/jobctl.sh ${SRC} ${OUT} -a "{${FIELD},${INITIAL},${CFIELD},${RESUME},${LOOP}}" -f ${CURDIR}/jobs/kmeans.js

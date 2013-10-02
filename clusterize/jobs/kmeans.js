@@ -1,16 +1,47 @@
 function main(jobctl,options) {
-	print('== FIRST ==');
-	var ret = first_job();
-
-	var NS = ret.dst;
-	options.args['meta'] = ret.data.meta;
-
-	for (var i = 1 ; i <= 99 ; i++ ) {
+  var resume = options.args['R'];
+	var NS = '';
+  var I  = 1;
+  if( ! resume ) {
+	  print('== FIRST ==');
+	  var ret = first_job();
+	  options.args['meta'] = ret.data.meta;
+    NS = ret.dst;
+  }else{
+	  print('== RESUME ==');
+	  options.args['meta'] =	utils.getmeta(utils.getCollection(resume));
+    printjson(options.args['meta']);
+    NS = options.args['meta'].kmeans.ns;
+    I  = options.args['meta'].kmeans.it;
+	  for (var i = I ; i <= 99 ; i++ ) {
+		  utils.cleanCollections(NS+'.it'+(i+1)+'\.');
+    }
+		utils.cleanCollections(NS+'.fin\.');
+    var prev_d = utils.getWritableCollection(NS+'.it'+I+'.data');
+    prev_d.update(utils.IGNORE_META,
+                  {
+                      $set:{
+                        tm:0,
+                        by:utils.EMP_NAME
+                      }},
+                  {multi:true});
+    var prev_c = utils.getWritableCollection(NS+'.it'+I+'.cluster');
+    prev_c.update(utils.IGNORE_META,
+                  {
+                      $set:{
+                        tm:0,
+                        by:utils.EMP_NAME
+                      }},
+                  {multi:true});
+  }
+	for (var i = I ; i <= 99 ; i++ ) {
 		var PREV_C = NS+'.it'+i+'.cluster';
 		var PREV_D = NS+'.it'+i+'.data';
 		var CUR_C  = NS+'.it'+(i+1)+'.cluster';
 		var CUR_D  = NS+'.it'+(i+1)+'.data';
 		
+	  options.args['meta'].kmeans.it     = (i+1);
+	  options.args['meta'].kmeans.ns     = NS;
 	  options.args['meta'].kmeans.data   = CUR_D;
 	  options.args['meta'].kmeans.cluster= CUR_C;
 
@@ -52,67 +83,62 @@ function main(jobctl,options) {
   return;
 
   function first_job() {
-	  return ret = jobctl.put( 'job',{
-			  empty_dst : function(){
-				  var psrc = utils.parseCollection(this.SRCCOL);
-				  return psrc.db + '.kmeans.'   +psrc.col;
-			  },
-			  prepare_create : function() {
-				  var pdst = utils.parseCollection(this.DSTCOL);
-				  utils.cleanCollections(this.DSTCOL+'\.');
-				  return {ok:1};
-			  },
-			  create_job : function() {
-				  return {ok:1};
-			  },
+    return map(jobctl,options,{
+			empty_dst : function(){
+				var psrc = utils.parseCollection(this.SRCCOL);
+				return psrc.db + '.kmeans.'   +psrc.col;
+			},
+			prepare_create : function() {
+				var pdst = utils.parseCollection(this.DSTCOL);
+				utils.cleanCollections(this.DSTCOL+'\.');
+				return {ok:1};
+			},
+      
+			prepare_run : function(){
+				this.initial_cluster = this.ARGS['I'];
+				this.cluster_field   = this.ARGS['C'];
+				this.field           = this.ARGS['F'];
         
-			  prepare_run : function(){
-				  this.initial_cluster = this.ARGS['I'];
-				  this.cluster_field   = this.ARGS['C'];
-				  this.field           = this.ARGS['F'];
-          
-				  this.meta =	utils.getmeta(this.src);
-				  this.meta.vector = this.SRCCOL;
-				  this.meta.kmeans = {
-					  data    : this.DSTCOL + '.it1.data',
-					  cluster : this.DSTCOL + '.it1.cluster',
-					  field   : this.ARGS['F']
-				  };
-				  this.cluster = utils.getWritableCollection(this.meta.kmeans.cluster);
-				  this.data    = utils.getWritableCollection(this.meta.kmeans.data);
-          
-				  return {ok:1};
-			  },
-			  run : function() {
-				  var cs = utils.getClusters(this.initial_cluster,this.cluster_field);
-				  for ( var c in cs ) {
-					  this.cluster.save({ 
-						    _id : c ,
-						  s : 0, 
-						  loc : cs[c] , 
-						  st: 0 });
-				  }
-		      
-				  var _c_src = this.src.find(utils.IGNORE_META);
-				  while(_c_src.hasNext()){
-					  var data = _c_src.next();
-					  var loc  = utils.getField(data,this.field);
-					  if ( loc ) {
-						  this.data.save({
-							    _id:data._id,
-							  loc:loc,
-							  st: 0
-						  });					
-					  }
-				  }
-          
-				  return {
-					  ok : 1,
-					  msg : 'success',
-					  data : { meta: this.meta }
-				  }
-			  }
-	  },options);
+				this.meta =	utils.getmeta(this.src);
+				this.meta.vector = this.SRCCOL;
+				this.meta.kmeans = {
+					data    : this.DSTCOL + '.it1.data',
+					cluster : this.DSTCOL + '.it1.cluster',
+					field   : this.ARGS['F']
+				};
+  
+				this.datacol    = utils.getWritableCollection(this.meta.kmeans.data);
+				return {ok:1};
+			},
+      unique_pre_run : function(){
+				this.cluster = utils.getWritableCollection(this.meta.kmeans.cluster);
+				var cs = utils.getClustersRaw(this.initial_cluster,this.cluster_field);
+				for ( var c in cs ) {
+					this.cluster.save({ 
+				      _id : c ,
+						s : 0, 
+						loc : cs[c] , 
+						tm: 0,
+            by: utils.EMP_NAME
+          });
+				}
+				return {ok:1};
+      },
+			map : function(id,val){
+				var loc  = utils.getField(val,this.field);
+				if ( loc ) {
+					this.datacol.save({
+					  _id:val._id,
+						loc:loc,
+ 						tm: 0,
+            by: utils.EMP_NAME
+					});					
+				}
+			},
+		  unique_post_run : function(){
+				return { meta : this.meta };
+			}
+	  });
   }
 
   function deploy_data(){
@@ -128,16 +154,19 @@ function main(jobctl,options) {
 				if ( this.meta.normalize ) {
           this.diffFunc   =  utils.diffAngle;
         }
-				this.cs = utils.getClusters(this.ARGS['cluster']);
-				if ( ! this.cs ) {
-					return {
-						ok : 0,
-						msg: 'Could not get cluster info',
-						data:this.cs
-					}
-				}
-				
+			  utils.setmeta(this.dst,this.meta);
+				return {ok:1};
+			},
+      unique_pre_run : function(){
 				if ( this.ARGS['prev_cluster'] ){
+				  this.cs = utils.getClusters(this.ARGS['cluster']);
+				  if ( ! this.cs ) {
+					  return {
+						  ok : 0,
+						  msg: 'Could not get cluster info',
+						  data:this.cs
+					  }
+				  }
 					var cs_history = utils.getClusters(this.ARGS['prev_cluster']);
 					this.cdiff = 0;
           
@@ -153,11 +182,16 @@ function main(jobctl,options) {
 						}
 					}
 				}
-				utils.setmeta(this.dst,this.meta);
-				return {ok:1};
+		    return {ok:1};
 			},
-			map_data : function(id,subjob){
-				return subjob;
+      pre_map : function(){
+print('*** PRE_MAP *** ');
+        if ( ! this.cs ){
+				  this.cs = utils.getClusters(this.ARGS['cluster']);
+        }
+      },
+			map_data : function(id,val){
+				return val;
 			},
 			map : function(id,val){
 				var cur = null;
@@ -185,7 +219,8 @@ function main(jobctl,options) {
 					val.cs[i].s = (val.cs[i].s<1.0e-12)?0:val.cs[i].s;
 				}
 				val.cs = utils.sort(val.cs,function(a,b){ return a.s > b.s;});
-				val.st = 0;
+				val.tm = 0;
+        val.by = utils.EMP_NAME;
 				this.dst.save(val);
 			},
 			unique_post_run : function(){
@@ -209,22 +244,33 @@ function main(jobctl,options) {
 				utils.setmeta(this.dst,this.meta);
 				return { ok:1 };
 			},
-			map_data : function(id){
-				return id;
+			map_data : function(id,val){
+				return val;
 			},
 			map : function(id,val){
-				var newc = { _id : val, s:0, loc:{},st:0 };
-				var _c_data = this.data.find({'c':val});
+				var newc = { 
+          _id : id,
+             s:0,
+           loc:{},
+            tm:0,
+            by:utils.EMP_NAME
+        };
+				var _c_data = this.data.find({'c':id});
 				while(_c_data.hasNext()){
 					var data = _c_data.next();
 					newc.loc = utils.addVector(newc.loc,data.loc);
 					newc.s++;
 				}
-				if ( this.meta.normalize ) {
-					newc.loc = utils.normalize(newc.loc);
-				}else{
-					newc.loc = utils.normalize(newc.loc,newc.s);
-				}
+        if ( newc.s > 0 ) {
+				  if ( this.meta.normalize ) {
+					  newc.loc = utils.normalize(newc.loc);
+				  }else{
+					  newc.loc = utils.normalize(newc.loc,newc.s);
+				  }
+        }else{
+print('EMP_C:'+newc._id);
+          newc.loc = val.loc;
+        }
 				this.dst.save(newc);
 			},
       direct : true
