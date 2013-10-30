@@ -67,12 +67,12 @@
 
 　　５．複数ドキュメントを一気に解析
 
-　　　　　./tokenizer.jp.sh -s test.sampledoc -f body -o test.token.sampledoc
+　　　　　./tokenize.jp.sh -s test.sampledoc -f body -o test.token.sampledoc
 
 
 　　６．結果を確認
 
-　　　　　mongo test <<<'db.token.sampledoc.find().sort({docid:1,idx:1})'
+　　　　　mongo test <<<'db.token.sampledoc.find().sort({d:1,i:1})'
 
 
 　　７．キーワード検索
