@@ -59,7 +59,6 @@ DICCOL=`echo ${DICSTR} | sed -e 's/^\([^\.]\+\)\.\(.\+\)/\2/'`
 DICJS="${CURDIR}/data/dic.json"
 if [ "$IPADIC" != "" ]; then
 		echo '=== PARSE IPADIC ==='
-pwd
 		perl ${CURDIR}/bin/parsedic.pl $IPADIC > ${DICJS}
 		echo '=== IMPORT IPADIC ==='
 		PRIMARY=`${MONGO_SHELL} ${MONGO_NODE} --quiet ${MONMO_ROOT}/lib/utils.js ${MONMO_ROOT}/getprimary.js | tail -n 1`

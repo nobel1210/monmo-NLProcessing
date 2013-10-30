@@ -28,7 +28,7 @@ function main(jobctl,options) {
 			
 			map_cursor : function(){
 				var tf  = utils.getCollection(this.meta.tf);
-				return tf.find(utils.IGNORE_META,{_id:1});
+				return tf.find(utils.IGNORE_META(),{_id:1});
 			},
 			
 			map_data : function(id){
@@ -62,7 +62,7 @@ function main(jobctl,options) {
 				this.meta = this.getmeta2();
   // Get IDF
 				this.idfall = {};
-				var _c_src = this.src.find(utils.IGNORE_META);
+				var _c_src = this.src.find(utils.IGNORE_META());
 				while ( _c_src.hasNext() ) {
 					var idf = _c_src.next();
 					this.idfall[idf._id] = idf.i;

@@ -35,7 +35,7 @@ function main(jobctl,options) {
 //			if ( _VERBOSE ) {
 //				print('EXCEPT : ' + id + ' : ' + val.value + ' / ' + this.meta.docs + ' = ' + propotion);
 //			}
-				}else if ( this.ARGS['V'] && ! this.dictionary.find({_id:ObjectId(id),t:'名詞'}).count() ) {
+				}else if ( this.ARGS['V'] && ! this.dictionary.find({_id:utils.toObjectId(id),t:'名詞'}).count() ) {
 //				if ( _VERBOSE ) {
 //					print('NOT VERB : ' + id + ' : ' + val.value + ' / ' + this.meta.docs + ' = ' + propotion);
 //				}

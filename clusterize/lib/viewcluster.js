@@ -17,11 +17,14 @@ while ( _c_src.hasNext() ) {
 	}
 	var ls = utils.sort(ls,function(a,b){ return (a.s > b.s); });
 	for ( i = 0 ; i < ls.length ; i++ ) {
-		if( i >= 10 ) {
+		if( ! _VERBOSE && i >= 10 ) {
+			break;
+		}
+		if( _VERBOSE && i >= 20 ) {
 			break;
 		}
 		if ( meta.dic ) {
-			var o = ObjectId(ls[i].id);
+			var o = utils.toObjectId(ls[i].id);
 			var v = _dictionary.findOne({_id:o});
 			print(ls[i].s + "\t : " + v.w );
 		}else {
@@ -39,7 +42,7 @@ while ( _c_src.hasNext() ) {
 			var data = _c_data.next();
       var id = '';
       try { 
-        id = ObjectId(data._id);
+        id = utils.toObjectId(data._id);
       }catch(e){
         id = data._id;
       }

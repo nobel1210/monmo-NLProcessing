@@ -18,19 +18,19 @@ function main(jobctl,options) {
     }
 		utils.cleanCollections(NS+'.fin\.');
     var prev_d = utils.getWritableCollection(NS+'.it'+I+'.data');
-    prev_d.update(utils.IGNORE_META,
+    prev_d.update(utils.IGNORE_META(),
                   {
                       $set:{
                         tm:0,
-                        by:utils.EMP_NAME
+                        by:utils.EMP_NAME()
                       }},
                   {multi:true});
     var prev_c = utils.getWritableCollection(NS+'.it'+I+'.cluster');
-    prev_c.update(utils.IGNORE_META,
+    prev_c.update(utils.IGNORE_META(),
                   {
                       $set:{
                         tm:0,
-                        by:utils.EMP_NAME
+                        by:utils.EMP_NAME()
                       }},
                   {multi:true});
   }
@@ -119,7 +119,7 @@ function main(jobctl,options) {
 						s : 0, 
 						loc : cs[c] , 
 						tm: 0,
-            by: utils.EMP_NAME
+            by: utils.EMP_NAME()
           });
 				}
 				return {ok:1};
@@ -131,7 +131,7 @@ function main(jobctl,options) {
 					  _id:val._id,
 						loc:loc,
  						tm: 0,
-            by: utils.EMP_NAME
+            by: utils.EMP_NAME()
 					});					
 				}
 			},
@@ -220,7 +220,7 @@ print('*** PRE_MAP *** ');
 				}
 				val.cs = utils.sort(val.cs,function(a,b){ return a.s > b.s;});
 				val.tm = 0;
-        val.by = utils.EMP_NAME;
+        val.by = utils.EMP_NAME();
 				this.dst.save(val);
 			},
 			unique_post_run : function(){
@@ -253,7 +253,7 @@ print('*** PRE_MAP *** ');
              s:0,
            loc:{},
             tm:0,
-            by:utils.EMP_NAME
+            by:utils.EMP_NAME()
         };
 				var _c_data = this.data.find({'c':id});
 				while(_c_data.hasNext()){

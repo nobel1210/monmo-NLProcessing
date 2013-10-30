@@ -34,8 +34,8 @@ if ( _VERBOSE ) {
 	print('= VERBOSE =' );
 	var ins = [];
 	for ( var i in sorted_docs ) {
-		var d = sorted_docs[i];	
-		var oid = ObjectId(d.d);
+		var d = sorted_docs[i];
+		var oid = utils.toObjectId(d.d);
 		ins.push(oid);
 	}
 	var _doc         = utils.getCollection(meta.doc);

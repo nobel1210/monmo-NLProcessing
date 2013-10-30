@@ -62,7 +62,7 @@ function main(jobctl,options) {
 			},
       
 			run : function() {
-				var _c_src= this.src.find(utils.IGNORE_META);
+				var _c_src= this.src.find(utils.IGNORE_META());
 				while(_c_src.hasNext()){
 					var data = _c_src.next();
 					var loc  = utils.getField(data,this.meta.canopy.field);
@@ -177,7 +177,7 @@ function main(jobctl,options) {
 				var threshold = Math.ceil(this.meta.docs / this.meta.canopy.c1 * this.meta.canopy.threshold);
 				tmp_t1n  = utils.getWritableCollection(this.meta.canopy.tmp_t1n);
 
-        var _cursor = this.dst.find(utils.IGNORE_META);
+        var _cursor = this.dst.find(utils.IGNORE_META());
         while(_cursor.hasNext()){
           var cluster = _cursor.next();
           cluster = utils.tojson(cluster);

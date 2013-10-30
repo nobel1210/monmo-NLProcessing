@@ -11,40 +11,46 @@ JPTokenizer.prototype.form = function(sentence,candidate) {
 		var word = candidate.w[i];
 		var head = sentence.substring(0,word.length);
 		if ( word === head ) {
-			for ( var i in candidate.f[word] ) {
-				var kind = candidate.f[word][i];
-				if ( kind === 1 ) {
-					candidate.l = word.length;
-					ret = [candidate];
-				}else if ( kind === 4 ) {
-					if ( ret === null || ret[0].l <= word.length ) {
-						var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["名詞"]}});
-						if ( follow ) {
-							candidate.l = word.length;
-							return [candidate].concat(follow);
-						}
-					}
-				}else if ( kind === 2 ) {
-					if ( ret === null || ret[0].l <= word.length ) {
-						var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["助動詞","助詞"]}});
-						if ( follow ) {
-							candidate.l = word.length;
-							return [candidate].concat(follow);
-						}
-					}
-				}else if ( kind === 3 ) {
-					if ( ret === null || ret[0].l <= word.length ) {
-						var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["動詞"]}});
-						if ( follow ) {
-							candidate.l = word.length;
-							return [candidate].concat(follow);
-						}
-						candidate.l = word.length;
-						return [candidate];
-					}
-				}
-			}
-		}
+      if ( ! candidate.f[word] ) {
+        // noum
+        return [candidate];
+      }else{ 
+        // verb
+			  for ( var i in candidate.f[word] ) {
+				  var kind = candidate.f[word][i];
+				  if ( kind === 1 ) {
+					  candidate.l = word.length;
+					  ret = [candidate];
+				  }else if ( kind === 4 ) {
+					  if ( ret === null || ret[0].l <= word.length ) {
+						  var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["名詞"]}});
+						  if ( follow ) {
+							  candidate.l = word.length;
+							  return [candidate].concat(follow);
+						  }
+					  }
+				  }else if ( kind === 2 ) {
+					  if ( ret === null || ret[0].l <= word.length ) {
+						  var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["助動詞","助詞"]}});
+						  if ( follow ) {
+							  candidate.l = word.length;
+							  return [candidate].concat(follow);
+						  }
+					  }
+				  }else if ( kind === 3 ) {
+					  if ( ret === null || ret[0].l <= word.length ) {
+						  var follow = this.parse_query(candidate,sentence.substring(word.length),{w:'*',t:{'$in':["動詞"]}});
+						  if ( follow ) {
+							  candidate.l = word.length;
+							  return [candidate].concat(follow);
+						  }
+						  candidate.l = word.length;
+						  return [candidate];
+					  }
+				  }
+			  }
+		  }
+    }
 	}
 	return ret;
 }
@@ -115,6 +121,12 @@ function katakana(str){
 }
 
 JPTokenizer.prototype.search_follows = function(candidate,sentence){
+	if ( utils.array_in(candidate.t,"名詞") ) {
+		var follow = this.parse_query(candidate,sentence,{w:"*",t:{'$in':["助動詞"]}});
+		if ( follow ) {
+			return [candidate].concat(follow);
+		}
+  }
 	if ( utils.array_in(candidate.t,"名詞接続") ) {
 		var follow = this.parse_query(candidate,sentence,{w:'*',t:{'$in':["名詞"]}});
 		if ( follow ) {
@@ -161,6 +173,7 @@ JPTokenizer.prototype.parse_original = function(sentence,word,type,query){
 		candidate = morpho.forms(this.nheads,{w:word,l:word.length,c:0,s:300,t:["名詞","ORG",type]});
 		candidate = this.dictionary.upsert(candidate);
 	}
+  candidate.l = word.length
 	return this.search_follows(candidate,sentence.substring(word.length));
 }
  

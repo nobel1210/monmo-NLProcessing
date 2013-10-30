@@ -50,7 +50,7 @@ function main(jobctl,options) {
 				print('== DATA  ==');
 				var data_count = 0;
 				var datacol = utils.getWritableCollection(this.DSTCOL + '.data');
-				var _c_src= this.src.find(utils.IGNORE_META);
+				var _c_src= this.src.find(utils.IGNORE_META());
 				while(_c_src.hasNext()){
 					var data = _c_src.next();
 					var loc  = utils.getField(data,this.meta.canopy.field);

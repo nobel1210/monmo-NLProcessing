@@ -6,9 +6,9 @@ var dst = {
 			ret.c = dictionary.findOne({_id:ret.c});
 		}
 		if ( _VERBOSE ) {
-			print(JSON.stringify(ret));
+			print(ret.i + ' : ' + JSON.stringify(ret));
 		}else{
-			print(ret.i + ' : ' + ret.w);
+			print(ret.i + ' (' + ret.l + '): ' + ret.w);
 		}
 	},
 	findAndModify: function(a){

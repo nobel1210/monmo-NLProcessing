@@ -9,7 +9,7 @@ function main(jobctl,options) {
 	options.dst = ret.data.meta.canopy.tmp_t2;
   ret = t2sampling_job();
 	options.args['meta'] = ret.data.meta;
-  
+
 	print('== T1 sampling  ==');
   
 	options.src = ret.data.meta.canopy.data;
@@ -74,7 +74,7 @@ function main(jobctl,options) {
 							_id:val._id,
 						loc:loc,
 						tm: 0,
-            by: utils.EMP_NAME
+            by: utils.EMP_NAME()
 					});					
 				}
       },
@@ -130,13 +130,13 @@ function main(jobctl,options) {
 
 		  unique_post_run : function(){
         this.meta.canopy.c.push(this.dst.stats().count);
-        utils.getCollection(this.SRCCOL).update(
-                                                utils.IGNORE_META,
-                                                {$set:{
-                                                  tm:0,
-                                                  by:utils.EMP_NAME
-                                                }},
-                                                {multi:true} );
+        this.wjob.update(
+                         utils.IGNORE_META(),
+                         {$set:{
+                           tm:0,
+                           by:utils.EMP_NAME()
+                         }},
+                         {multi:true} );
 	      utils.setmeta(this.dst,this.meta);
 				return { meta : this.meta };
       },
@@ -179,10 +179,10 @@ function main(jobctl,options) {
       },
 		  unique_post_run : function(){
         this.dst.update(
-                        utils.IGNORE_META,
+                        utils.IGNORE_META(),
                         {$set:{
                           tm:0,
-                          by:utils.EMP_NAME
+                          by:utils.EMP_NAME()
                         }},
                         {multi:true} );
 	      utils.setmeta(this.dst,this.meta);

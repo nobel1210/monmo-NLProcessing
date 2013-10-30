@@ -121,6 +121,22 @@ var morpho = {
 			if        ( val.w[len-1] === "い" ) {
 				return gen(val,1,[],["かろ","かっ","けれ"],["く"]);
 			}
+		}	else if ( utils.array_all(val.t,["名詞","一般"]) && ! utils.array_in(val.t,"固有名詞")) {
+//      val.w = [val.w,utils.katakana(val.w)].concat(val.p);
+//			val.w = utils.unique(val.w);
+//      val.h = [];
+//      for ( var i in val.w ) {
+//        val.h.push(val.w[i].slice(0,nheads));
+//      }
+//			val.w = utils.sort(val.w,function(a,b){
+//        return a.length > b.length;
+//      });
+//			val.w = (val.w.length===1?val.w[0]:val.w);
+//
+//			val.h = utils.unique(val.h);
+//			val.h = (val.h.length===1?val.h[0]:val.h);
+//			delete val.p;
+//			return val;
 		}
 		val.h = val.w.slice(0,nheads);
 		delete val.p;

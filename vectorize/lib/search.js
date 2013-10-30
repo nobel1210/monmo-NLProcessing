@@ -42,7 +42,7 @@ var ins = [];
 var _c_src = _src.find(query);
 while(_c_src.hasNext()){
 	var doc = _c_src.next();
-	var oid = ObjectId(doc._id);
+	var oid = utils.toObjectId(doc._id);
 	ins.push(oid);
 }
 print('= DOCS =' );
